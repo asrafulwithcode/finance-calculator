@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Income Tax Calculator - New vs Old Regime</title>
+  <meta name="description" content="Calculate and compare your income tax liability under the New and Old Tax Regimes." />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased font-sans">
+
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+    <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+      <a href="index.html" class="font-bold text-xl text-indigo-600 tracking-tight">FinGrow<span class="text-slate-900">Tools</span></a>
+      <nav class="space-x-4 text-sm font-medium text-slate-600">
+        <a href="index.html" class="hover:text-indigo-600">SIP & EMI</a>
+        <a href="tax-calculator.html" class="text-indigo-600 font-semibold">Income Tax</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 py-8">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-extrabold text-slate-900 sm:text-4xl">Income Tax Calculator</h1>
+      <p class="mt-2 text-slate-600">Compare your tax outgo across New and Old tax regimes instantly.</p>
+    </div>
+
+    <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700">Gross Annual Income (₹)</label>
+            <input type="number" id="annualIncome" value="900000" class="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500" oninput="calculateTax()">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-slate-700">Total Deductions under 80C / 80D (₹)</label>
+            <input type="number" id="deductions" value="150000" class="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500" oninput="calculateTax()">
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <div class="bg-indigo-50 rounded-xl p-5 border border-indigo-100">
+            <div class="text-sm font-bold text-indigo-950">New Tax Regime</div>
+            <div class="text-xs text-slate-500">Net Tax Payable</div>
+            <div id="newRegimeTax" class="text-3xl font-extrabold text-indigo-700 mt-1">₹0</div>
+          </div>
+
+          <div class="bg-slate-50 rounded-xl p-5 border border-slate-200">
+            <div class="text-sm font-bold text-slate-900">Old Tax Regime</div>
+            <div class="text-xs text-slate-500">Net Tax Payable</div>
+            <div id="oldRegimeTax" class="text-3xl font-extrabold text-slate-700 mt-1">₹0</div>
+          </div>
+
+          <div id="verdictText" class="text-sm font-medium text-emerald-700 bg-emerald-50 p-3 rounded-lg border border-emerald-200 text-center">
+            Calculating savings...
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="mt-12 bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
+    &copy; 2026 FinGrow Tools. <a href="privacy-policy.html" class="hover:underline">Privacy Policy</a>
+  </footer>
+
+  <script>
+    function calculateTax() {
+      const income = Math.max(0, Number(document.getElementById('annualIncome').value) || 0);
+      const deductions = Math.max(0, Number(document.getElementById('deductions').value) || 0);
+
+      const netTaxableNew = Math.max(0, income - 75000);
+      let taxNew = 0;
+      if (netTaxableNew > 300000 && netTaxableNew <= 700000) taxNew = (netTaxableNew - 300000) * 0.05;
+      else if (netTaxableNew > 700000 && netTaxableNew <= 1000000) taxNew = 20000 + (netTaxableNew - 700000) * 0.10;
+      else if (netTaxableNew > 1000000 && netTaxableNew <= 1200000) taxNew = 50000 + (netTaxableNew - 1000000) * 0.15;
+      else if (netTaxableNew > 1200000 && netTaxableNew <= 1500000) taxNew = 80000 + (netTaxableNew - 1200000) * 0.20;
+      else if (netTaxableNew > 1500000) taxNew = 140000 + (netTaxableNew - 1500000) * 0.30;
+      if (netTaxableNew <= 700000) taxNew = 0;
+      const totalTaxNew = Math.round(taxNew * 1.04);
+
+      const netTaxableOld = Math.max(0, income - 50000 - deductions);
+      let taxOld = 0;
+      if (netTaxableOld > 250000 && netTaxableOld <= 500000) taxOld = (netTaxableOld - 250000) * 0.05;
+      else if (netTaxableOld > 500000 && netTaxableOld <= 1000000) taxOld = 12500 + (netTaxableOld - 500000) * 0.20;
+      else if (netTaxableOld > 1000000) taxOld = 112500 + (netTaxableOld - 1000000) * 0.30;
+      if (netTaxableOld <= 500000) taxOld = 0;
+      const totalTaxOld = Math.round(taxOld * 1.04);
+
+      document.getElementById('newRegimeTax').innerText = '₹' + totalTaxNew.toLocaleString('en-IN');
+      document.getElementById('oldRegimeTax').innerText = '₹' + totalTaxOld.toLocaleString('en-IN');
+
+      const verdict = document.getElementById('verdictText');
+      if (totalTaxNew < totalTaxOld) {
+        verdict.innerText = `You save ₹${(totalTaxOld - totalTaxNew).toLocaleString('en-IN')} with the New Tax Regime.`;
+      } else if (totalTaxOld < totalTaxNew) {
+        verdict.innerText = `You save ₹${(totalTaxNew - totalTaxOld).toLocaleString('en-IN')} with the Old Tax Regime.`;
+      } else {
+        verdict.innerText = 'Both regimes result in the same tax liability.';
+      }
+    }
+    calculateTax();
+  </script>
+</body>
+</html>
